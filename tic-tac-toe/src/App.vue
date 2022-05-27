@@ -1,17 +1,17 @@
 <template>
-  <div class ="container">
+  <div class="container">
 
     <h1>Tic Tac Toe</h1>
-    <div class ="play-area">
-<div id = "block_0" class ="block"></div>
-<div id = "block_1" class ="block"></div>
-<div id = "block_2" class ="block"></div>
-<div id = "block_3" class ="block"></div>
-<div id = "block_4" class ="block"></div>
-<div id = "block_5" class ="block"></div>
-<div id = "block_6" class ="block"></div>
-<div id = "block_7" class ="block"></div>
-<div id = "block_8" class ="block"></div>
+    <div class="play-area">
+      <div id="block_0" class="block" @click="draw(0)">{{ content[0] }}</div>
+      <div id="block_1" class="block" @click="draw(1)">{{ content[1] }}</div>
+      <div id="block_2" class="block" @click="draw(2)">{{ content[2] }}</div>
+      <div id="block_3" class="block" @click="draw(3)">{{ content[3] }}</div>
+      <div id="block_4" class="block" @click="draw(4)">{{ content[4] }}</div>
+      <div id="block_5" class="block" @click="draw(5)">{{ content[5] }}</div>
+      <div id="block_6" class="block" @click="draw(6)">{{ content[6] }}</div>
+      <div id="block_7" class="block" @click="draw(7)">{{ content[7] }}</div>
+      <div id="block_8" class="block" @click="draw(8)">{{ content[8] }}</div>
 
     </div>
 
@@ -24,7 +24,28 @@
 export default {
   name: 'App',
   components: {
-  
+
+  },
+  data() {
+    return {
+
+      content: ["", "", "", "", "", "", "", ""],
+      turn: true
+    }
+  },
+  methods: {
+    draw(index) {
+      //if this is true mark as X
+      if (this.turn) {
+        this.content[index] = "X"
+      }
+      // else mark as O
+      else {
+        this.content[index] = "O"
+      }
+      //switch turn
+      this.turn = !this.turn;
+    }
   }
 }
 </script>
