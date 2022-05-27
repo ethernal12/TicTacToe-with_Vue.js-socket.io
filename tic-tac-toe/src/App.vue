@@ -14,6 +14,7 @@
       <div id="block_8" class="block" @click="draw(8)">{{ content[8] }}</div>
 
     </div>
+    <h2 id="winner" v-if="gameOver">The winner is {{ winner }}</h2>
 
   </div>
 </template>
@@ -30,9 +31,12 @@ export default {
     return {
 
       content: ["", "", "", "", "", "", "", ""],
-      turn: true
+      turn: true,
+      gameOver: false,
+      winnder: null
     }
   },
+
   methods: {
     draw(index) {
       //if this is true mark as X
@@ -45,9 +49,38 @@ export default {
       }
       //switch turn
       this.turn = !this.turn;
+      this.calculateWinner();
+    },
+    calculateWinner() {
+      const WINNNING_CONDITIONS = [
+        // rows winning condition
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        // cols winning condition
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        // diagonals winnig conditions
+        [2, 4, 6], [0, 4, 8]
+
+      ]
+
+      for (let i = 0; i < WINNNING_CONDITIONS.length; i++) {
+        let firstIndex = WINNNING_CONDITIONS[i][0];
+        let secondIndex = WINNNING_CONDITIONS[i][1];
+        let thirdIndex = WINNNING_CONDITIONS[i][2];
+        console.log(WINNNING_CONDITIONS[0] +  " first index");
+        console.log(WINNNING_CONDITIONS[i]+ " second index");
+       
+        if(this.content[firstIndex] == this.content[secondIndex] &&
+          this.content[firstIndex] == this.content[thirdIndex] &&
+        this.content[firstIndex] != "") {
+          this.gameOver = true;
+          this.winner = this.content[firstIndex];
+        }
+      }
     }
+
   }
 }
+
 </script>
 
 <style>
