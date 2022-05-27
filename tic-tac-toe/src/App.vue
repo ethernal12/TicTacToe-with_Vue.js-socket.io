@@ -14,15 +14,16 @@
       <div id="block_8" class="block" @click="draw(8)">{{ content[8] }}</div>
 
     </div>
-    <h2 id="winner" v-if="gameOver" >The winner is {{ winner }}</h2>
-    <h2 id="tie" v-if ="isTie">The game is a tie!</h2>
+    <h2 id="winner" v-if="gameOver">The winner is {{ winner }}</h2>
+    <h2 id="tie" v-if="isTie">The game is a tie!</h2>
     <button @click="resetBoard()" v-if="gameOver || isTie">RESET BOARD</button>
 
   </div>
 </template>
 
 <script>
-
+import io from "socket.io-client"
+const socket = io("http://localhost:3000")
 
 export default {
   name: 'App',
@@ -36,7 +37,7 @@ export default {
       turn: true,
       gameOver: false,
       winner: null,
-      isTie:false
+      isTie: false
     }
   },
 
@@ -54,6 +55,7 @@ export default {
       this.turn = !this.turn;
       this.calculateWinner();
       this.calculateTie();
+      socket.emit("play", index)
     },
     calculateWinner() {
       const WINNNING_CONDITIONS = [
@@ -70,40 +72,49 @@ export default {
         let firstIndex = WINNNING_CONDITIONS[i][0];
         let secondIndex = WINNNING_CONDITIONS[i][1];
         let thirdIndex = WINNNING_CONDITIONS[i][2];
-        console.log(WINNNING_CONDITIONS[0] +  " first index");
-        console.log(WINNNING_CONDITIONS[i]+ " second index");
-       
-        if(this.content[firstIndex] == this.content[secondIndex] &&
+
+
+        if (this.content[firstIndex] == this.content[secondIndex] &&
           this.content[firstIndex] == this.content[thirdIndex] &&
-        this.content[firstIndex] != "") {
+          this.content[firstIndex] != "") {
           this.gameOver = true;
           this.winner = this.content[firstIndex];
-         
+
         }
-        
+
       }
     },
-    calculateTie(){
-      for (let index = 0; index <= 8; index++) {
-        if(this.content[index] == ""){
-         return
+    calculateTie() {
+      for (let i = 0; i <= 8; i++) {
+        if (this.content[i] == "") {
+          return
         }
-       
       }
-        this.isTie = true;
+      if (!this.winner) {
+
+        this.isTie = true
+      }
     },
-    resetBoard(){
+    resetBoard() {
       for (let index = 0; index <= 8; index++) {
         this.content[index] = "";
-      
-        
-      }
         this.gameOver = false;
         this.winner = null;
         this.isTie = false;
+
+      }
+
+    },
+    created() {
+      socket.on("play", (index) => {
+      
+        console.log("received index", index)
+
+      })
     }
 
   }
+
 }
 
 </script>
