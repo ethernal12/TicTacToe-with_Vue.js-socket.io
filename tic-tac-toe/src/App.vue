@@ -14,7 +14,9 @@
       <div id="block_8" class="block" @click="draw(8)">{{ content[8] }}</div>
 
     </div>
-    <h2 id="winner" v-if="gameOver">The winner is {{ winner }}</h2>
+    <h2 id="winner" v-if="gameOver" >The winner is {{ winner }}</h2>
+    <h2 id="tie" v-if ="isTie">The game is a tie!</h2>
+    <button @click="resetBoard()" v-if="gameOver || isTie">RESET BOARD</button>
 
   </div>
 </template>
@@ -33,7 +35,8 @@ export default {
       content: ["", "", "", "", "", "", "", ""],
       turn: true,
       gameOver: false,
-      winnder: null
+      winner: null,
+      isTie:false
     }
   },
 
@@ -50,6 +53,7 @@ export default {
       //switch turn
       this.turn = !this.turn;
       this.calculateWinner();
+      this.calculateTie();
     },
     calculateWinner() {
       const WINNNING_CONDITIONS = [
@@ -74,8 +78,29 @@ export default {
         this.content[firstIndex] != "") {
           this.gameOver = true;
           this.winner = this.content[firstIndex];
+         
         }
+        
       }
+    },
+    calculateTie(){
+      for (let index = 0; index <= 8; index++) {
+        if(this.content[index] == ""){
+         return
+        }
+       
+      }
+        this.isTie = true;
+    },
+    resetBoard(){
+      for (let index = 0; index <= 8; index++) {
+        this.content[index] = "";
+      
+        
+      }
+        this.gameOver = false;
+        this.winner = null;
+        this.isTie = false;
     }
 
   }
