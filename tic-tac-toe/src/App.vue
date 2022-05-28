@@ -2,6 +2,10 @@
   <div class="container">
 
     <h1>Tic Tac Toe</h1>
+    <button id="start" @click="startgame()">Start game</button>
+    <h2>{{ displayTurn }}</h2>
+
+    <br>
     <div class="play-area">
       <div id="block_0" class="block" @click="draw(0), false">{{ content[0] }}</div>
       <div id="block_1" class="block" @click="draw(1), false">{{ content[1] }}</div>
@@ -14,8 +18,10 @@
       <div id="block_8" class="block" @click="draw(8), false">{{ content[8] }}</div>
 
     </div>
+
     <h2 id="winner" v-if="gameOver">The winner is {{ winner }}</h2>
     <h2 id="tie" v-if="isTie">The game is a tie!</h2>
+
     <button @click="resetBoard()" v-if="gameOver || isTie">RESET BOARD</button>
 
   </div>
@@ -39,19 +45,26 @@ export default {
       turn: true,
       gameOver: false,
       winner: null,
-      isTie: false
+      isTie: false,
+      displayTurn: "",
+      gameStarted: false,
+      boardReseted: false
     }
   },
 
   methods: {
     draw(index, drawFromAnother) {
+
       //if this is true mark as X
       if (this.turn) {
         this.content[index] = "X";
+        this.displayTurn = "";
+
       }
       // else mark as O
       else {
         this.content[index] = "O";
+        this.displayTurn = "";
       }
       //switch turn
       this.turn = !this.turn;
@@ -85,6 +98,7 @@ export default {
           this.gameOver = true;
           this.winner = this.content[firstIndex];
 
+
         }
 
       }
@@ -101,6 +115,7 @@ export default {
       }
     },
     resetBoard() {
+      console.log("reset board");
       for (let index = 0; index <= 8; index++) {
         this.content[index] = "";
         this.gameOver = false;
@@ -109,18 +124,62 @@ export default {
 
       }
 
+     
+      socket.emit("resetBoard", true);
+      
+      document.getElementById('start').style.visibility = 'visible';
+      socket.emit("startGameButton", "visible");
+      this.displayTurn = "";
+
+    },
+    startgame() {
+
+      this.gameStarted = true;
+      //if the game is started hide start button
+      if (this.gameStarted) {
+        document.getElementById('start').style.visibility = 'hidden';
+      }
+      //hide start button on other client
+      socket.emit("startGame", true);
     }
-   
+
 
 
   },
-   created() {
-      console.log("created");
-      socket.on("play", (index) => {
-        console.log("received index", index)
-        this.draw(index, true)
-      })
-    }
+  created() {
+
+    socket.on("play", (index) => {
+
+      this.draw(index, true)
+    })
+    socket.on("turn", (turn) => {
+      this.displayTurn = turn;
+    })
+    // hide the start button on other client
+    socket.on("startGame", (bool) => {
+
+      this.gameStarted = bool;
+      if (this.gameStarted) {
+        document.getElementById('start').style.visibility = 'hidden';
+        this.displayTurn = "your turn"
+      }
+    })
+
+    socket.on("startGameButton", visible => {
+
+      document.getElementById('start').style.visibility = `${visible}`;
+    })
+
+    socket.on("reset", reset => {
+
+      
+      if (!this.boardReseted) {
+        this.resetBoard();
+      }
+      this.boardReseted = reset; // equal to true when receiving from server
+
+    })
+  }
 }
 
 </script>
