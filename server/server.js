@@ -6,9 +6,11 @@ const io = require('socket.io')(server, {
         methods: ["GET", "POST"]
     }
 });
+
+
 io.on('connection', (socket)=> {
-    socket.emit("hello", "youtube tutorial");
-    socket.on("play", index => {
+   
+    socket.on("play2", index => {
         console.log("server received", index);
         socket.broadcast.emit("play", index);
     })
@@ -16,4 +18,3 @@ io.on('connection', (socket)=> {
 
 server.listen(3000)
 console.log("server listening on port 3000")
-

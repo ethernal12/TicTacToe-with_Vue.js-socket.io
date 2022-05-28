@@ -22,8 +22,10 @@
 </template>
 
 <script>
-import io from "socket.io-client"
-const socket = io("http://localhost:3000")
+import io from "socket.io-client";
+const socket = io("http://localhost:3000");
+
+
 
 export default {
   name: 'App',
@@ -45,17 +47,17 @@ export default {
     draw(index) {
       //if this is true mark as X
       if (this.turn) {
-        this.content[index] = "X"
+        this.content[index] = "X";
       }
       // else mark as O
       else {
-        this.content[index] = "O"
+        this.content[index] = "O";
       }
       //switch turn
       this.turn = !this.turn;
       this.calculateWinner();
       this.calculateTie();
-      socket.emit("play", index)
+      socket.emit("play2", index);
     },
     calculateWinner() {
       const WINNNING_CONDITIONS = [
@@ -92,7 +94,7 @@ export default {
       }
       if (!this.winner) {
 
-        this.isTie = true
+        this.isTie = true;
       }
     },
     resetBoard() {
@@ -106,15 +108,15 @@ export default {
 
     },
     created() {
+      console.log("created");
       socket.on("play", (index) => {
-      
         console.log("received index", index)
-
+        //this.draw(index, true)
       })
     }
 
-  }
 
+  }
 }
 
 </script>
