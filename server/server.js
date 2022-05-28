@@ -10,7 +10,7 @@ const io = require('socket.io')(server, {
 
 io.on('connection', (socket)=> {
    
-    socket.on("play2", index => {
+    socket.on("play", index => {
         console.log("server received", index);
         socket.broadcast.emit("play", index);
     })
