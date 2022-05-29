@@ -42,11 +42,7 @@ io.on('connection', (socket) => {
         //emit to player 1 that player 2 is ready
         socket.broadcast.emit("Player 2 ready start game", isReady);
     })
-    socket.on("player 2 has reseted board", isReady => {
-
-        //emit to player 1 that player 2 is ready
-        socket.broadcast.emit("player 2 has reseted board", isReady);
-    })
+   
     socket.on("other player has reseted board", isReady => {
 
         //emit to player 1 that player 2 is ready
