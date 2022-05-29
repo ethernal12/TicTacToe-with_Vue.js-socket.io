@@ -19,9 +19,10 @@
 
     </div>
 
+    <h2>{{ playerReady }}</h2>
     <h2 id="winner" v-if="gameOver">The winner is {{ winner }}</h2>
     <h2 id="tie" v-if="isTie">The game is a tie!</h2>
-
+    <h2 id="boardReseted">{{ displayBoardReset }}</h2>
     <button @click="resetBoard()" v-if="gameOver || isTie">RESET BOARD</button>
 
   </div>
@@ -47,25 +48,74 @@ export default {
       winner: null,
       isTie: false,
       displayTurn: "",
-      gameStarted: false,
-      boardReseted: false
+      ableToPlay: false,
+      player1Ready: false,
+      player2Ready: false,
+      boardReseted: false,
+      displayBoardReset: "",
+      playerReady: ""
     }
   },
 
   methods: {
     draw(index, drawFromAnother) {
 
+     
       //if this is true mark as X
       if (this.turn) {
         this.content[index] = "X";
-        this.displayTurn = "";
+        this.displayTurn = "HIS TURN";
+        if (this.disableGrid) {
+          console.log(this.disableGrid + " disabled grid x 1");
+          for (let index = 0; index <= 8; index++) {
+            document.getElementById(`block_${index}`).style.pointerEvents = "visibleFill";
+            socket.emit("disaple grid for other player", false);
+          }
+
+        } else {
+          console.log(this.disableGrid + " disabled grid x 2");
+          for (let index = 0; index <= 8; index++) {
+            document.getElementById(`block_${index}`).style.pointerEvents = "none";
+
+          }
+          socket.emit("disaple grid for other player", true);
+        }
+
+      
+
+
+
 
       }
       // else mark as O
       else {
+
+        this.displayTurn = "HIS TURN";
         this.content[index] = "O";
-        this.displayTurn = "";
+          // if player one puts his first move it goes to o 1
+          if (this.disableGrid) {
+          console.log(!this.disableGrid + " disabled grid 0 1");
+          for (let index = 0; index <= 8; index++) {
+            document.getElementById(`block_${index}`).style.pointerEvents = "none";
+            socket.emit("disaple grid for other player", false);
+          }
+
+        } else {
+         console.log(this.disableGrid + " disabled grid 0 2");
+          for (let index = 0; index <= 8; index++) {
+            document.getElementById(`block_${index}`).style.pointerEvents = "visibleFill";
+
+          }
+          socket.emit("disaple grid for other player", false);
+        }
+        
+
+
+
       }
+
+
+
       //switch turn
       this.turn = !this.turn;
       this.calculateWinner();
@@ -115,38 +165,96 @@ export default {
       }
     },
     resetBoard() {
-      console.log("reset board");
-      for (let index = 0; index <= 8; index++) {
-        this.content[index] = "";
-        this.gameOver = false;
-        this.winner = null;
-        this.isTie = false;
+
+
+      //reset board for player 1
+      if (!this.boardReseted) {
+        for (let index = 0; index <= 8; index++) {
+          this.content[index] = "";
+          this.gameOver = false;
+          this.winner = null;
+          this.isTie = false;
+          this.player1Ready = false;
+          this.player2Ready = false;
+
+        }
+
+        //document.getElementById('start').style.visibility = 'visible';
+        this.displayBoardReset = "waiting for other player to reset board";
+        //emit that player 1 has reseted board
+        socket.emit("boardReseted", true);
+        socket.emit("startGameButton", "visible");
+        this.displayTurn = "";
 
       }
+      //board has been reseted by player 1 , able to reset for player 2
+      if (this.boardReseted) {
+        for (let index = 0; index <= 8; index++) {
+          this.content[index] = "";
+          this.gameOver = false;
+          this.winner = null;
+          this.isTie = false;
+          this.player1Ready = false;
+          this.player2Ready = false;
 
-     
-      socket.emit("resetBoard", true);
-      
-      document.getElementById('start').style.visibility = 'visible';
-      socket.emit("startGameButton", "visible");
-      this.displayTurn = "";
+        }
+
+        this.displayBoardReset = "";
+        this.displayTurn = "";
+        document.getElementById('start').style.visibility = 'visible';
+        socket.emit("other player has reseted board", true);
+      }
+
+
+
+
 
     },
     startgame() {
+      console.log("grid disabled " + this.disableGrid )
+      if (!this.player1Ready) {
 
-      this.gameStarted = true;
-      //if the game is started hide start button
-      if (this.gameStarted) {
+        this.playerReady = "Waiting for other player..";
+        //hide start button for player 1
         document.getElementById('start').style.visibility = 'hidden';
+        //notify that this player is ready to other player
+        socket.emit("player 1 ready", true);
+        socket.emit("disaple grid for other player", true);
+
+        for (let index = 0; index <= 8; index++) {
+          document.getElementById(`block_${index}`).style.pointerEvents = "none";
+        }
+
       }
-      //hide start button on other client
-      socket.emit("startGame", true);
-    }
+      // returns from player 2 pressing start button 
+      if (this.player1Ready) {
+
+        document.getElementById('start').style.visibility = 'hidden';
+        // emit that player 2 is ready too, start game
+        socket.emit("Player 2 ready start game", true);
+        //delete player msg on player 2
+        this.displayTurn = "YOUR TURN";
+        this.disableGrid = false;
+        this.playerReady = "";
+
+      }
+
+      if (this.player2Ready) {
+
+        this.displayTurn = "YOUR TURN";
+
+
+      }
+
+
+    },
 
 
 
   },
   created() {
+
+
 
     socket.on("play", (index) => {
 
@@ -155,30 +263,53 @@ export default {
     socket.on("turn", (turn) => {
       this.displayTurn = turn;
     })
-    // hide the start button on other client
-    socket.on("startGame", (bool) => {
+    // receiving msg that player 1  is ready
+    socket.on("player 1 ready", bool => {
 
-      this.gameStarted = bool;
-      if (this.gameStarted) {
-        document.getElementById('start').style.visibility = 'hidden';
-        this.displayTurn = "your turn"
+      this.player1Ready = bool;
+
+      if (this.player1Ready) {
+
+        this.playerReady = "other player is ready, press start!";
+
+
       }
     })
+    // player two responds that he is ready for a game
+    socket.on("Player 2 ready start game", bool => {
+      this.playerReady = "";
+      this.player2Ready = bool;
 
-    socket.on("startGameButton", visible => {
+      this.displayTurn = "HIS TURN";
+      //diasble input if not your turn 
 
-      document.getElementById('start').style.visibility = `${visible}`;
-    })
-
-    socket.on("reset", reset => {
-
-      
-      if (!this.boardReseted) {
-        this.resetBoard();
-      }
-      this.boardReseted = reset; // equal to true when receiving from server
 
     })
+
+
+
+    socket.on("boardReseted", reset => {
+      // other palyer has reseted board
+      this.displayBoardReset = "other player is ready for next game, reset your board to start...";
+      this.boardReseted = reset;
+
+      // player 2 emiting he has reseted teh board and a new game can start
+
+    })
+    socket.on("other player has reseted board", bool => {
+      console.log(bool);
+      this.displayBoardReset = "";
+      document.getElementById('start').style.visibility = 'visible';
+
+
+    })
+    socket.on("disaple grid for other player", bool => {
+      this.disableGrid = bool;
+
+
+
+    })
+
   }
 }
 
@@ -198,7 +329,8 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #eee;
+  background: rgb(10, 9, 9);
+  color: aliceblue;
 }
 
 h1 {
@@ -227,13 +359,13 @@ h2 {
   justify-content: center;
   font-size: 3rem;
   font-weight: bold;
-  border: 3px solid black;
+  border: 3px solid rgb(250, 249, 249);
   transition: background 0.2s ease-in-out;
 }
 
 .block:hover {
   cursor: pointer;
-  background: #0ff30f;
+  background: #0f3df3;
 }
 
 .occupied:hover {
@@ -273,6 +405,7 @@ h2 {
 }
 
 button {
+  color: aliceblue;
   outline: none;
   border: 4px solid green;
   padding: 10px 20px;
@@ -284,7 +417,7 @@ button {
 
 button:hover {
   cursor: pointer;
-  background: green;
+  background: rgb(4, 230, 91);
   color: white;
 }
 
