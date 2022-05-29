@@ -1,1 +1,3 @@
- // if player one starts the game first after reseting the board both grids are disabled
+ if player one starts the game first after reseting the board both grids are disabled
+
+ before gamestart lock the grids
