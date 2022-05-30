@@ -19,11 +19,11 @@
 
       </div>
 
-      <h2 class ="playerReady">{{ playerReady }}</h2>
+      <h2 class="playerReady">{{ playerReady }}</h2>
       <h2 id="winner" v-if="gameOver">The winner is {{ winner }}</h2>
       <h2 id="tie" v-if="isTie">The game is a tie!</h2>
       <h2 id="boardReseted">{{ displayBoardReset }}</h2>
-      <button @click="resetBoard()" v-if="gameOver || isTie">RESET BOARD</button>
+      <button @click="resetBoard()" v-if="gameOver || isTie">RESET GRID</button>
     </div>
   </div>
 </template>
@@ -31,8 +31,14 @@
 <script>
 import io from "socket.io-client";
 const socket = io("http://localhost:3000");
+//disable grid before pressing start onload
+window.addEventListener('load', () => {
 
+  for (let index = 0; index <= 8; index++) {
+    document.getElementById(`block_${index}`).style.pointerEvents = "none";
+  }
 
+});
 
 export default {
   name: 'App',
@@ -66,25 +72,20 @@ export default {
         this.content[index] = "X";
         this.displayTurn = "HIS TURN";
         if (this.disableGrid) {
-          console.log(this.disableGrid + " disabled grid x 1");
+
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "visibleFill";
             socket.emit("disaple grid for other player", false);
           }
 
         } else {
-          console.log(this.disableGrid + " disabled grid x 2");
+
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "none";
 
           }
           socket.emit("disaple grid for other player", true);
         }
-
-
-
-
-
 
       }
       // else mark as O
@@ -94,14 +95,14 @@ export default {
         this.content[index] = "O";
         // if player one puts his first move it goes to o 1
         if (this.disableGrid) {
-          console.log(!this.disableGrid + " disabled grid 0 1");
+
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "none";
             socket.emit("disaple grid for other player", false);
           }
 
         } else {
-          console.log(this.disableGrid + " disabled grid 0 2");
+
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "visibleFill";
 
@@ -113,8 +114,6 @@ export default {
 
 
       }
-
-
 
       //switch turn
       this.turn = !this.turn;
@@ -149,7 +148,10 @@ export default {
           this.winner = this.content[firstIndex];
           // if game is over player1 can reset his board
           this.player1Ready = true;
-
+          // when game is over make grid disable for both players
+          for (let index = 0; index <= 8; index++) {
+            document.getElementById(`block_${index}`).style.pointerEvents = "none";
+          }
 
         }
 
@@ -164,6 +166,10 @@ export default {
       if (!this.winner) {
 
         this.isTie = true;
+        // when game is a tie make grid disable for both players
+          for (let index = 0; index <= 8; index++) {
+            document.getElementById(`block_${index}`).style.pointerEvents = "none";
+          }
       }
     },
     resetBoard() {
@@ -249,22 +255,18 @@ export default {
 
       }
 
-
-
-
     },
 
 
 
   },
   created() {
-
-
-
+    // the other player draws X or O 
     socket.on("play", (index) => {
 
-      this.draw(index, true)
+      this.draw(index, true);
     })
+    // displays turn switches
     socket.on("turn", (turn) => {
       this.displayTurn = turn;
     })
@@ -286,7 +288,7 @@ export default {
       this.player2Ready = bool;
 
       this.displayTurn = "HIS TURN";
-      //diasble input if not your turn 
+
 
 
     })
@@ -355,14 +357,17 @@ export default {
   color: aliceblue;
   border: 3px solid rgb(250, 249, 249);
 }
-.playerReady{
+
+.playerReady {
   color: #0ff30f;
   text-shadow: 1px 1px 4px #4fafeb, 1px 1px 10px #02ff46;
 }
-#winner{
+
+#winner {
   color: #ff3a3a;
   text-shadow: 1px 1px 4px #4fafeb, 1px 1px 15px #f70e1d;
 }
+
 h1 {
   font-size: 5rem;
   margin-bottom: 0.5em;
