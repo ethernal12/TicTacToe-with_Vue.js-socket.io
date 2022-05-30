@@ -2,7 +2,7 @@ const assert = require("assert");
 const io = require("socket.io-client");
 const serverURL = "ws://localhost:3000";
 
-const vue = require("../../tic-tac-toe/src/Apps.vue")
+
 
 describe("Testing server connection", () => {
 
@@ -15,7 +15,7 @@ describe("Testing server connection", () => {
         socket.on("connect", () => {
             
             assert(socket.connected);
-        
+            socket.disconnect();
             done();
          
         });
@@ -26,11 +26,11 @@ describe("Testing server connection", () => {
 })
 describe("Testing game functionality", () => {
 
-    it("Should receive player1 ready if pressing start button", (done) =>{
+    it("Should receive true if player 1 is pressing start button", (done) =>{
         const socket = io(serverURL);
-        socket.on("player 1 ready2", (body) => {
+        socket.on("player 1 ready", (body) => {
             assert(body);
-           
+            socket.disconnect();
             done();
         })
 

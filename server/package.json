@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "test" : "mocha --timeout 10000",
     "test:unit": "vue-cli-service test:unit src/**/*.spec.js",
     "start": "node server.js"
   },
