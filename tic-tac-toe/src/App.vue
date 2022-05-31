@@ -130,7 +130,7 @@ export default {
         [0, 1, 2], [3, 4, 5], [6, 7, 8],
         // cols winning condition
         [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        // diagonals winnig conditions
+        // diagonals winning conditions
         [2, 4, 6], [0, 4, 8]
 
       ]
@@ -144,6 +144,7 @@ export default {
         if (this.content[firstIndex] == this.content[secondIndex] &&
           this.content[firstIndex] == this.content[thirdIndex] &&
           this.content[firstIndex] != "") {
+          socket.emit("Winner", "Game over");
           this.gameOver = true;
           this.winner = this.content[firstIndex];
           // if game is over player1 can reset his board

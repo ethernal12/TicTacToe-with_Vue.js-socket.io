@@ -50,12 +50,12 @@ describe("Testing game functionality", () => {
 
   it("Should receive player 1 ready if pressing start button", (done) => {
    
-    component.find('#start').trigger('click')
+   
     const socket = io(serverURL);
     
     
     socket.on("player 1 ready", (body) => {
-      
+      component.find('#start').trigger('click');
      
       assert(body);
       

@@ -13,6 +13,7 @@ io.on('connection', (socket) => {
     socket.on("play", index => {
 
         socket.broadcast.emit("play", index);
+        //broadcast turn switches
         socket.broadcast.emit("turn", "YOUR TURN");
 
 
@@ -53,6 +54,11 @@ io.on('connection', (socket) => {
 
         //emit to disable grid for other player
         socket.broadcast.emit("disaple grid for other player", disable);
+    })
+    socket.on("Winner", gameOver=> {
+
+        //emit if game over and we have a winner
+        socket.broadcast.emit("Winner", gameOver);
     })
 
 
