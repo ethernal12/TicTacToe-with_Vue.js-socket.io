@@ -21,7 +21,14 @@ describe("Testing server connection", () => {
 
 
 })
+
+describe("Testing client-serverss connectivity", () => {
+
+   
+})
 describe("Testing game functionality", () => {
+
+
 
     it("Should receive true if player 1 is pressing start button", (done) => {
         const socket = io(serverURL);
@@ -30,9 +37,15 @@ describe("Testing game functionality", () => {
             socket.disconnect();
             done();
         })
+     
 
 
     })
+
+ 
+
+
+
 
     it("Should receive true if player 2 pressed start button", (done) => {
         const socket = io(serverURL);
@@ -55,7 +68,29 @@ describe("Testing game functionality", () => {
 
 
     })
-    
+
+    it("testing the connection client1-server", (done) => {
+        const socket = io(serverURL);
+        socket.on("emit to the server", (body) => {
+            console.log(body);
+            assert.equal(body, "emited to server");
+
+            socket.disconnect();
+            done();
+        })
+
+    })
+
+    it("testing the connection client2-server", (done) => {
+        const socket = io(serverURL);
+        socket.on("emit back to server", (body) => {
+            assert.equal(body, "emited back to server");
+            socket.disconnect();
+            done();
+        })
+
+    })
+
 
     it("Should receive play msg ", (done) => {
         const socket = io(serverURL);

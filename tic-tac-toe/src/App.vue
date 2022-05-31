@@ -211,8 +211,10 @@ export default {
         this.playerReady = "Waiting for other player..";
         //hide start button for player 1
         document.getElementById('start').style.visibility = 'hidden';
+
         //notify that this player is ready to other player
         socket.emit("player 1 ready", true);
+
         //potential bug?
         socket.emit("disaple grid for other player", true);
 
@@ -244,6 +246,7 @@ export default {
 
   },
   created() {
+    console.log("created");
     // the other player draws X or O 
     socket.on("play", (index) => {
 
@@ -318,8 +321,9 @@ export default {
 
 
     })
-      socket.on("emit to client", emited => {
-      console.log(emited);
+    socket.on("emit to client", emited => {
+      console.log(emited + " back");
+      socket.emit("emit back to server", "emited back to server");
 
 
 

@@ -11,8 +11,16 @@ const io = require('socket.io')(server, {
 io.on('connection', (socket) => {
 
     socket.on("emit to the server", body => {
+        console.log(body + " received from client1")
+        socket.broadcast.emit("emit to client", body);
+        
 
-        socket.broadcast.emit("emit to client", "emit to client");
+
+    })
+
+    socket.on("emit back to server", body => {
+
+        console.log(body + " received from client2")
    
 
 
