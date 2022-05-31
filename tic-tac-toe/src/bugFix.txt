@@ -1,3 +1,11 @@
  
 
  before gamestart lock the grids
+
+
+Start game logic:
+
+in startgame the player1ready is false so it emits that palyer1 is ready on startgame button press and the server broadcasts to the other player
+so it can display that "Other player is ready, press start!" and changes the palyer1Ready to true.
+Now in the strtGame we go to second condition and display "your turn" and emit to the server which brodacasts to other client so it 
+can display "his turn" and change player2ready to true so that when we reset grid it resets both sides.

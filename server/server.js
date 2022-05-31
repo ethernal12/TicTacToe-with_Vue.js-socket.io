@@ -9,6 +9,14 @@ const io = require('socket.io')(server, {
 
 
 io.on('connection', (socket) => {
+
+    socket.on("emit to the server", body => {
+
+        socket.broadcast.emit("emit to client", "emit to client");
+   
+
+
+    })
     
     socket.on("play", index => {
 
@@ -28,10 +36,10 @@ io.on('connection', (socket) => {
         //broadcast  board reseted from other player
         socket.broadcast.emit("boardReseted", reseted);
     })
-    socket.on("startGameButton", buttonVisible => {
+    socket.on("resetOtherGrid", resetGrid => {
 
         //broadcast button visible after reset board
-        socket.broadcast.emit("startGameButton", buttonVisible);
+        socket.broadcast.emit("resetOtherGrid", resetGrid);
     })
     socket.on("player 1 ready", isReady => {
 
@@ -60,6 +68,9 @@ io.on('connection', (socket) => {
         //emit if game over and we have a winner
         socket.broadcast.emit("Winner", gameOver);
     })
+
+
+
 
 
 })

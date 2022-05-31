@@ -45,7 +45,7 @@ describe("Testing game functionality", () => {
 
     })
 
-    it("Should receive turn msg when any of the player places X/O", (done) => {
+    it("Should receive turn msg when any of the player places X or O", (done) => {
         const socket = io(serverURL);
         socket.on("turn", (body) => {
             assert.equal(body, "YOUR TURN");
@@ -55,6 +55,7 @@ describe("Testing game functionality", () => {
 
 
     })
+    
 
     it("Should receive play msg ", (done) => {
         const socket = io(serverURL);
@@ -66,6 +67,17 @@ describe("Testing game functionality", () => {
 
     })
 
+    it("Should disable grid for player 2 on first move", () => {
+        const socket = io(serverURL);
+        socket.on("disaple grid for other player", (body) => {
+            assert(body);
+            socket.disconnect();
+            done();
+        })
+    })
+
+
+
     it("Should have a winner before game over", (done) => {
         const socket = io(serverURL);
         socket.on("Winner", (body) => {
@@ -75,5 +87,17 @@ describe("Testing game functionality", () => {
         })
 
     })
+
+    it("Should be able to reset both play grids", (done) => {
+        const socket = io(serverURL);
+        socket.on("resetOtherGrid", (body) => {
+            assert(body);
+            socket.disconnect();
+            done();
+        })
+
+    })
+
+    //test grid reset functionality
 
 })
