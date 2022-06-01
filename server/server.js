@@ -10,21 +10,7 @@ const io = require('socket.io')(server, {
 
 io.on('connection', (socket) => {
 
-    socket.on("emit to the server", body => {
-        console.log(body + " received from client1")
-        socket.broadcast.emit("emit to client", body);
-        
-
-
-    })
-
-    socket.on("emit back to server", body => {
-
-        console.log(body + " received from client2")
    
-
-
-    })
     
     socket.on("play", index => {
 
@@ -73,8 +59,12 @@ io.on('connection', (socket) => {
     })
     socket.on("Winner", gameOver=> {
 
-        //emit if game over and we have a winner
-        socket.broadcast.emit("Winner", gameOver);
+        socket.broadcast.emit("Winner",gameOver);
+    })
+
+    socket.on("Is a tie", isATie=> {
+
+        socket.broadcast.emit("IS a tie", isATie);
     })
 
 

@@ -74,15 +74,17 @@ export default {
         this.content[index] = "X";
         this.displayTurn = "HIS TURN";
         if (this.disableGrid) {
-          console.log(this.disableGrid + " disableGrid on X")
 
+          console.log(this.disableGrid + " true disable grid  x 1")
           for (let index = 0; index <= 8; index++) {
+
             document.getElementById(`block_${index}`).style.pointerEvents = "visibleFill";
             socket.emit("disaple grid for other player", true);
           }
 
+
         } else {
-          console.log(this.disableGrid + " disableGrid on X")
+          console.log(this.disableGrid + " false disable grid  x 2")
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "none";
 
@@ -97,25 +99,22 @@ export default {
 
         this.displayTurn = "HIS TURN";
         this.content[index] = "O";
-        // if player one puts his first move it goes to o 1
+
         if (this.disableGrid) {
-          console.log(this.disableGrid + " disableGrid on 0")
+          console.log(this.disableGrid + " true disable grid  O 1")
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "none";
             socket.emit("disaple grid for other player", false);
           }
 
         } else {
-          console.log(this.disableGrid + " disableGrid on 0")
+          console.log(this.disableGrid + " false disable grid O 2")
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "visibleFill";
 
           }
           socket.emit("disaple grid for other player", false);
         }
-
-
-
 
       }
 
@@ -148,8 +147,11 @@ export default {
         if (this.content[firstIndex] == this.content[secondIndex] &&
           this.content[firstIndex] == this.content[thirdIndex] &&
           this.content[firstIndex] != "") {
-          socket.emit("Winner", "Game over");
           this.gameOver = true;
+
+
+          // emit to the server that we have a winner, for testing only
+          socket.emit("Winner", this.gameOver);
           this.winner = this.content[firstIndex];
           // if game is over player1 can reset his board
           this.player1Ready = true;
@@ -171,6 +173,8 @@ export default {
       if (!this.winner) {
 
         this.isTie = true;
+
+        socket.emit("Is a tie", this.isTie);
         // when game is a tie make grid disable for both players
         for (let index = 0; index <= 8; index++) {
           document.getElementById(`block_${index}`).style.pointerEvents = "none";
@@ -178,10 +182,10 @@ export default {
       }
     },
     resetBoard() {
-      console.log(this.gridReseted + " grid reseted");
 
       //reset board for both players
       if (!this.gridReseted) {
+       
         for (let index = 0; index <= 8; index++) {
           this.content[index] = "";
           this.gameOver = false;
@@ -200,13 +204,14 @@ export default {
 
 
         this.displayTurn = "";
+
       }
 
     },
     startgame() {
 
       if (!this.player1Ready) {
-        socket.emit("emit to the server", "emited to server");
+
 
         this.playerReady = "Waiting for other player..";
         //hide start button for player 1
@@ -225,7 +230,7 @@ export default {
       }
       // returns from player 1 pressing start button 
       if (this.player1Ready) {
-
+        socket.emit("disaple grid for other player", false);
         document.getElementById('start').style.visibility = 'hidden';
         //make grid interactable
         for (let index = 0; index <= 8; index++) {
@@ -246,7 +251,7 @@ export default {
 
   },
   created() {
-    console.log("created");
+
     // the other player draws X or O 
     socket.on("play", (index) => {
 
@@ -270,6 +275,7 @@ export default {
     })
     // player two responds that he is ready for a game
     socket.on("Player 2 ready start game", bool => {
+
       this.playerReady = "";
       this.player2Ready = bool;
 
@@ -279,7 +285,9 @@ export default {
 
     })
     socket.on("resetOtherGrid", resetGrid => {
+
       console.log(resetGrid);
+
       for (let index = 0; index <= 8; index++) {
         this.content[index] = "";
         this.gameOver = false;
@@ -292,7 +300,7 @@ export default {
       document.getElementById('start').style.visibility = 'visible';
 
       this.displayTurn = "";
-
+     
     })
 
 
@@ -321,13 +329,7 @@ export default {
 
 
     })
-    socket.on("emit to client", emited => {
-      console.log(emited + " back");
-      socket.emit("emit back to server", "emited back to server");
 
-
-
-    })
 
   }
 }
