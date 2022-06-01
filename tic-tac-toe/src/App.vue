@@ -231,7 +231,7 @@ export default {
         //notify that this player is ready to other player
         socket.emit("player 1 ready", true);
         //potential bug?
-        socket.emit("disaple grid for other player", true);
+      
 
         for (let index = 0; index <= 8; index++) {
           document.getElementById(`block_${index}`).style.pointerEvents = "none";
@@ -250,7 +250,7 @@ export default {
         socket.emit("Player 2 ready start game", true);
         //delete player msg on player 2
         this.displayTurn = "YOUR TURN";
-        this.disableGrid = false;
+       
         this.playerReady = "";
 
       }
