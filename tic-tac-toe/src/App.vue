@@ -59,7 +59,8 @@ export default {
       player2Ready: false,
       boardReseted: false,
       displayBoardReset: "",
-      playerReady: ""
+      playerReady: "",
+      gridReseted: false
     }
   },
 
@@ -69,21 +70,26 @@ export default {
 
       //if this is true mark as X
       if (this.turn) {
+
         this.content[index] = "X";
         this.displayTurn = "HIS TURN";
         if (this.disableGrid) {
 
+          console.log(this.disableGrid + " true disable grid  x 1")
           for (let index = 0; index <= 8; index++) {
+
             document.getElementById(`block_${index}`).style.pointerEvents = "visibleFill";
-            socket.emit("disaple grid for other player", false);
+            socket.emit("disaple grid for other player", true);
           }
 
-        } else {
 
+        } else {
+          console.log(this.disableGrid + " false disable grid  x 2")
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "none";
 
           }
+          //on the start disable grid for other player
           socket.emit("disaple grid for other player", true);
         }
 
@@ -93,25 +99,22 @@ export default {
 
         this.displayTurn = "HIS TURN";
         this.content[index] = "O";
-        // if player one puts his first move it goes to o 1
-        if (this.disableGrid) {
 
+        if (this.disableGrid) {
+          console.log(this.disableGrid + " true disable grid  O 1")
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "none";
             socket.emit("disaple grid for other player", false);
           }
 
         } else {
-
+          console.log(this.disableGrid + " false disable grid O 2")
           for (let index = 0; index <= 8; index++) {
             document.getElementById(`block_${index}`).style.pointerEvents = "visibleFill";
 
           }
           socket.emit("disaple grid for other player", false);
         }
-
-
-
 
       }
 
@@ -130,7 +133,7 @@ export default {
         [0, 1, 2], [3, 4, 5], [6, 7, 8],
         // cols winning condition
         [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        // diagonals winnig conditions
+        // diagonals winning conditions
         [2, 4, 6], [0, 4, 8]
 
       ]
@@ -145,6 +148,10 @@ export default {
           this.content[firstIndex] == this.content[thirdIndex] &&
           this.content[firstIndex] != "") {
           this.gameOver = true;
+
+
+          // emit to the server that we have a winner, for testing only
+          socket.emit("Winner", this.gameOver);
           this.winner = this.content[firstIndex];
           // if game is over player1 can reset his board
           this.player1Ready = true;
@@ -166,17 +173,19 @@ export default {
       if (!this.winner) {
 
         this.isTie = true;
+
+        socket.emit("Is a tie", this.isTie);
         // when game is a tie make grid disable for both players
-          for (let index = 0; index <= 8; index++) {
-            document.getElementById(`block_${index}`).style.pointerEvents = "none";
-          }
+        for (let index = 0; index <= 8; index++) {
+          document.getElementById(`block_${index}`).style.pointerEvents = "none";
+        }
       }
     },
     resetBoard() {
 
-
-      //reset board for player 1
-      if (this.player1Ready) {
+      //reset board for both players
+      if (!this.gridReseted) {
+       
         for (let index = 0; index <= 8; index++) {
           this.content[index] = "";
           this.gameOver = false;
@@ -189,47 +198,28 @@ export default {
 
         document.getElementById('start').style.visibility = 'visible';
 
-        //emit that player 1 has reseted board
 
-        socket.emit("startGameButton", "visible");
-        socket.emit("boardReseted", true);
-
-        this.displayTurn = "";
-
-      }
-      if (this.player2Ready) {
-        for (let index = 0; index <= 8; index++) {
-          this.content[index] = "";
-          this.gameOver = false;
-          this.winner = null;
-          this.isTie = false;
-          this.player1Ready = false;
-          this.player2Ready = false;
-
-        }
-
-        document.getElementById('start').style.visibility = 'visible';
-
-        //emit that player 1 has reseted board
-
+        // reset other board too and make start button visible for other player
+        socket.emit("resetOtherGrid", true);
 
 
         this.displayTurn = "";
 
       }
-
-
 
     },
     startgame() {
 
       if (!this.player1Ready) {
 
+
         this.playerReady = "Waiting for other player..";
         //hide start button for player 1
         document.getElementById('start').style.visibility = 'hidden';
+
         //notify that this player is ready to other player
         socket.emit("player 1 ready", true);
+
         //potential bug?
         socket.emit("disaple grid for other player", true);
 
@@ -240,13 +230,13 @@ export default {
       }
       // returns from player 1 pressing start button 
       if (this.player1Ready) {
-
+        socket.emit("disaple grid for other player", false);
         document.getElementById('start').style.visibility = 'hidden';
         //make grid interactable
         for (let index = 0; index <= 8; index++) {
           document.getElementById(`block_${index}`).style.pointerEvents = "visibleFill";
         }
-        // emit that player 2 is ready too, start game
+        // emit that player 2 is ready too and emit to other player so it can dispaly his turn
         socket.emit("Player 2 ready start game", true);
         //delete player msg on player 2
         this.displayTurn = "YOUR TURN";
@@ -261,6 +251,7 @@ export default {
 
   },
   created() {
+
     // the other player draws X or O 
     socket.on("play", (index) => {
 
@@ -284,6 +275,7 @@ export default {
     })
     // player two responds that he is ready for a game
     socket.on("Player 2 ready start game", bool => {
+
       this.playerReady = "";
       this.player2Ready = bool;
 
@@ -292,10 +284,23 @@ export default {
 
 
     })
-    socket.on("startGameButton", buttonVisible => {
-      console.log(buttonVisible);
-      this.resetBoard()
+    socket.on("resetOtherGrid", resetGrid => {
 
+      console.log(resetGrid);
+
+      for (let index = 0; index <= 8; index++) {
+        this.content[index] = "";
+        this.gameOver = false;
+        this.winner = null;
+        this.isTie = false;
+        this.player1Ready = false;
+        this.player2Ready = false;
+
+      }
+      document.getElementById('start').style.visibility = 'visible';
+
+      this.displayTurn = "";
+     
     })
 
 
@@ -324,6 +329,7 @@ export default {
 
 
     })
+
 
   }
 }

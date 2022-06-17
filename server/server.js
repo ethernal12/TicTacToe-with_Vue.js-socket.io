@@ -10,9 +10,12 @@ const io = require('socket.io')(server, {
 
 io.on('connection', (socket) => {
 
+   
+    
     socket.on("play", index => {
 
         socket.broadcast.emit("play", index);
+        //broadcast turn switches
         socket.broadcast.emit("turn", "YOUR TURN");
 
 
@@ -27,10 +30,10 @@ io.on('connection', (socket) => {
         //broadcast  board reseted from other player
         socket.broadcast.emit("boardReseted", reseted);
     })
-    socket.on("startGameButton", buttonVisible => {
+    socket.on("resetOtherGrid", resetGrid => {
 
         //broadcast button visible after reset board
-        socket.broadcast.emit("startGameButton", buttonVisible);
+        socket.broadcast.emit("resetOtherGrid", resetGrid);
     })
     socket.on("player 1 ready", isReady => {
 
@@ -54,6 +57,18 @@ io.on('connection', (socket) => {
         //emit to disable grid for other player
         socket.broadcast.emit("disaple grid for other player", disable);
     })
+    socket.on("Winner", gameOver=> {
+
+        socket.broadcast.emit("Winner",gameOver);
+    })
+
+    socket.on("Is a tie", isATie=> {
+
+        socket.broadcast.emit("IS a tie", isATie);
+    })
+
+
+
 
 
 })
@@ -61,6 +76,6 @@ io.on('connection', (socket) => {
 
 
 server.listen(3000, () => {
-    console.log("server listening on port 3000")
+    console.log("is listenig at port 3000");
 })
 
