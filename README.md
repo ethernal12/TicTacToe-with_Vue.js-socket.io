@@ -2,7 +2,7 @@
 
 How to run the game:
 
-clone repo
+fork repo
 
 npm install on ./tic-tac-toe
 
